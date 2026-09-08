@@ -30,8 +30,11 @@ let powerCheckTimer;
 let refreshIntervalMilliseconds;
 let preferencesPath;
 let preferences = {
-  widgetVisible: true,
-  widgetBounds: null
+  // WidgetKit is the lightweight desktop widget. Keep the older Electron
+  // floating dashboard opt-in because it needs a second Chromium renderer.
+  widgetVisible: false,
+  widgetBounds: null,
+  memoryOptimizationVersion: 0
 };
 const hasSingleInstanceLock = app.requestSingleInstanceLock();
 const widgetAppGroup = "7BF3VF2M63.local.codexu.dashboard";
@@ -75,7 +78,7 @@ function showWindow() {
 
 function toggleWindow() {
   if (mainWindow?.isVisible()) {
-    mainWindow.hide();
+    mainWindow.close();
   } else {
     showWindow();
   }
@@ -128,6 +131,14 @@ async function loadPreferences() {
       ...preferences,
       ...saved
     };
+    // Old versions opened a second Electron renderer for the floating
+    // dashboard at every launch. Disable it once; it remains available from
+    // the tray for anyone who still wants that legacy view.
+    if (preferences.memoryOptimizationVersion < 1) {
+      preferences.widgetVisible = false;
+      preferences.memoryOptimizationVersion = 1;
+      await savePreferences();
+    }
   } catch {
     // 首次启动或旧版本没有偏好文件时使用安全默认值。
   }
@@ -194,7 +205,7 @@ function setWidgetVisible(visible) {
     if (!widgetWindow) createWidgetWindow();
     widgetWindow.showInactive();
   } else {
-    widgetWindow?.hide();
+    widgetWindow?.destroy();
   }
   savePreferences();
 }
@@ -335,7 +346,9 @@ function createWindow() {
   mainWindow.on("close", (event) => {
     if (isQuitting) return;
     event.preventDefault();
-    mainWindow.hide();
+    // The tray owns the background app. Recreate this renderer only when the
+    // user opens the dashboard again, releasing its memory while hidden.
+    mainWindow.destroy();
   });
   mainWindow.on("closed", () => {
     mainWindow = null;
@@ -389,7 +402,9 @@ function createWidgetWindow() {
   widgetWindow.on("close", (event) => {
     if (isQuitting) return;
     event.preventDefault();
-    setWidgetVisible(false);
+    preferences.widgetVisible = false;
+    savePreferences();
+    widgetWindow.destroy();
   });
   widgetWindow.on("closed", () => {
     widgetWindow = null;
@@ -501,7 +516,7 @@ app.whenReady().then(async () => {
     if (!targetWindow) return null;
     if (action === "close") {
       if (targetWindow === widgetWindow) setWidgetVisible(false);
-      else targetWindow.hide();
+      else targetWindow.close();
     }
     if (action === "minimize") targetWindow.minimize();
     if (action === "pin") {
@@ -512,8 +527,12 @@ app.whenReady().then(async () => {
     return null;
   });
 
-  createWindow();
-  createWidgetWindow();
+  // Keep the tray and native WidgetKit updater resident, but do not allocate
+  // Chromium renderers until the user explicitly opens a dashboard surface.
+  if (process.env.CODEXU_SCREENSHOT) createWindow();
+  if (preferences.widgetVisible || process.env.CODEXU_WIDGET_SCREENSHOT) {
+    createWidgetWindow();
+  }
   refreshTrayStatus();
   void configurePowerAwareRefresh();
   // This only checks a tiny system status. The actual Codex data refresh follows
