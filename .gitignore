@@ -1,0 +1,26 @@
+# Dependencies and build outputs
+node_modules/
+outputs/
+dist/
+*.log
+
+# Local Codex data and test fixtures
+.qa/
+.qa-cache/
+.test-user-data*/
+.electron-runtime/
+
+# Local analysis caches
+graphify-out/
+native-widget/graphify-out/
+
+# Xcode per-user state
+*.xcuserstate
+**/xcuserdata/
+DerivedData/
+
+# Local environment and Finder metadata
+.env
+.env.*
+!.env.example
+.DS_Store

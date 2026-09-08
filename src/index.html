@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="codexU — private local Codex usage dashboard"
+    />
+    <title>codexU</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="titlebar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 48 48">
+              <path d="M14 34h22a8 8 0 0 0 1-15.9A13 13 0 0 0 12.2 18 8 8 0 0 0 14 34Z" />
+              <path class="brand-spark" d="M19 28c5-7 9-7 14-2" />
+            </svg>
+          </div>
+          <div>
+            <div class="brand-name">codex<span>U</span></div>
+            <div class="brand-subtitle">本地用量仪表盘</div>
+          </div>
+        </div>
+
+        <div class="title-actions no-drag">
+          <div class="privacy-badge"><span></span>本地只读</div>
+          <button id="themeButton" class="icon-button theme-button" title="切换主题">
+            <span class="sun">☀</span><span class="moon">◐</span>
+          </button>
+          <div class="language-switch" title="English coming later">
+            <span class="active">中</span><span>EN</span>
+          </div>
+          <div class="plan-badge" id="planBadge">PLUS</div>
+          <button id="pinButton" class="icon-button" title="窗口置顶">⌖</button>
+          <button id="refreshButton" class="icon-button" title="刷新数据">↻</button>
+          <button id="closeButton" class="icon-button danger" title="隐藏到状态栏">×</button>
+        </div>
+      </header>
+
+      <section id="loadingState" class="loading-state">
+        <div class="loader"></div>
+        <h1>正在整理本地 Codex 记录</h1>
+        <p>首次启动会扫描历史会话，之后只处理新增内容。</p>
+      </section>
+
+      <section id="dashboard" class="dashboard hidden">
+        <section id="overview" class="overview-grid"></section>
+
+        <nav class="tabs no-drag" aria-label="看板页面">
+          <button data-tab="today"><span>☷</span>今日任务</button>
+          <button data-tab="trend" class="active"><span>▣</span>用量趋势</button>
+          <button data-tab="projects"><span>▱</span>项目排行</button>
+          <button data-tab="skills"><span>⬡</span>Skill 与工具</button>
+          <div id="coverageLabel" class="tab-meta"></div>
+        </nav>
+
+        <section id="tabContent" class="tab-content"></section>
+
+        <footer>
+          <div id="sourceNote"></div>
+          <div id="freshness"></div>
+        </footer>
+      </section>
+
+      <section id="errorState" class="error-state hidden">
+        <div class="error-icon">!</div>
+        <h1>暂时无法读取 Codex 数据</h1>
+        <p id="errorMessage"></p>
+        <button id="retryButton">重新读取</button>
+      </section>
+    </main>
+    <script type="module" src="./renderer.js"></script>
+  </body>
+</html>

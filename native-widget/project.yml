@@ -1,0 +1,42 @@
+name: CodexUWidgetHost
+options:
+  bundleIdPrefix: local.codexu.dashboard
+  deploymentTarget:
+    macOS: "14.0"
+settings:
+  base:
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    SWIFT_VERSION: "5.0"
+    CODE_SIGN_STYLE: Automatic
+targets:
+  CodexUWidgetHost:
+    type: application
+    platform: macOS
+    sources:
+      - path: Host
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: local.codexu.dashboard.widgethost
+        PRODUCT_NAME: codexU Widgets
+        INFOPLIST_FILE: Host/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Host/CodexUWidgetHost.entitlements
+        GENERATE_INFOPLIST_FILE: NO
+    dependencies:
+      - target: CodexUWidgetExtension
+        embed: true
+        codeSign: true
+  CodexUWidgetExtension:
+    type: app-extension
+    platform: macOS
+    sources:
+      - path: Widget
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: local.codexu.dashboard.widgethost.widget
+        PRODUCT_NAME: codexUWidget
+        INFOPLIST_FILE: Widget/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Widget/CodexUWidgetExtension.entitlements
+        GENERATE_INFOPLIST_FILE: NO
+        SKIP_INSTALL: YES

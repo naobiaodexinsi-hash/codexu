@@ -1,0 +1,49 @@
+{
+  "name": "codexu-local",
+  "version": "0.5.0",
+  "description": "A private, read-only local usage dashboard for Codex on macOS.",
+  "type": "module",
+  "main": "electron/main.js",
+  "author": "bai",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "ELECTRON_OVERRIDE_DIST_PATH=node_modules/electron/dist electron .",
+    "test": "node scripts/qa.mjs",
+    "pack:mac": "electron-builder --mac dir --arm64"
+  },
+  "devDependencies": {
+    "electron": "^37.2.3",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "local.codexu.dashboard",
+    "productName": "codexU",
+    "asar": true,
+    "directories": {
+      "output": "../../outputs/release"
+    },
+    "files": [
+      "electron/**/*",
+      "src/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "electron/power-aware-launcher.zsh",
+        "to": "codexu-background/power-aware-launcher.zsh"
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "icon": "build/icon.icns",
+      "extendInfo": {
+        "LSUIElement": true
+      },
+      "target": [
+        "dir"
+      ],
+      "identity": null,
+      "artifactName": "codexU-${version}-${arch}.${ext}"
+    }
+  }
+}
